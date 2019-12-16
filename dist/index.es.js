@@ -482,8 +482,9 @@ function (_PureComponent) {
       if (e.button !== MAIN_BUTTON) return;
       var startX = e.clientX,
           startY = e.clientY;
-      _this.props.onDragStart && _this.props.onDragStart();
       _this._isMouseDown = true;
+      var dragStarted = false;
+      var dragTrashold = _this.props.dragTrashold;
 
       var onMove = function onMove(e) {
         if (!_this._isMouseDown) return; // patch: fix windows press win key during mouseup issue
@@ -493,6 +494,15 @@ function (_PureComponent) {
             clientY = e.clientY;
         var deltaX = clientX - startX;
         var deltaY = clientY - startY;
+
+        if (!dragStarted) {
+          if (Math.abs(deltaX) < dragTrashold && Math.abs(deltaY) < dragTrashold) {
+            return;
+          }
+
+          dragStarted = true;
+          _this.props.onDragStart && _this.props.onDragStart();
+        }
 
         _this.props.onDrag(deltaX, deltaY);
 
@@ -505,6 +515,7 @@ function (_PureComponent) {
         document.removeEventListener('mouseup', onUp);
         if (!_this._isMouseDown) return;
         _this._isMouseDown = false;
+        if (!dragStarted) return;
         _this.props.onDragEnd && _this.props.onDragEnd();
       };
 
@@ -700,7 +711,8 @@ _defineProperty(Rect, "propTypes", {
   parentRotateAngle: PropTypes.number,
   rotatable: PropTypes.bool,
   styles: PropTypes.object,
-  zoomable: PropTypes.string
+  zoomable: PropTypes.string,
+  dragTrashold: PropTypes.number
 });
 
 _defineProperty(Rect, "defaultProps", {
@@ -801,6 +813,7 @@ function (_Component) {
           parentRotateAngle = _this$props2.parentRotateAngle,
           zoomable = _this$props2.zoomable,
           rotatable = _this$props2.rotatable,
+          dragTrashold = _this$props2.dragTrashold,
           onRotate = _this$props2.onRotate,
           onResizeStart = _this$props2.onResizeStart,
           onResizeEnd = _this$props2.onResizeEnd,
@@ -822,6 +835,7 @@ function (_Component) {
         zoomable: zoomable,
         rotatable: Boolean(rotatable && onRotate),
         parentRotateAngle: parentRotateAngle,
+        dragTrashold: dragTrashold,
         onResizeStart: onResizeStart,
         onResize: this.handleResize,
         onResizeEnd: onResizeEnd,
@@ -851,6 +865,7 @@ _defineProperty(ResizableRect, "propTypes", {
   zoomable: PropTypes.string,
   minWidth: PropTypes.number,
   minHeight: PropTypes.number,
+  dragTrashold: PropTypes.number,
   aspectRatio: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
   onRotateStart: PropTypes.func,
   onRotate: PropTypes.func,
@@ -869,7 +884,8 @@ _defineProperty(ResizableRect, "defaultProps", {
   rotatable: true,
   zoomable: '',
   minWidth: 10,
-  minHeight: 10
+  minHeight: 10,
+  dragTrashold: 3
 });
 
 export default ResizableRect;
