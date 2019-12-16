@@ -35,7 +35,8 @@ export default class Rect extends PureComponent {
     parentRotateAngle: PropTypes.number,
     rotatable: PropTypes.bool,
     styles: PropTypes.object,
-    zoomable: PropTypes.string
+    zoomable: PropTypes.string,
+    dragTrashold: PropTypes.number
   }
 
   static defaultProps = {
@@ -48,14 +49,26 @@ export default class Rect extends PureComponent {
   startDrag = (e) => {
     if (e.button !== MAIN_BUTTON) return
     let { clientX: startX, clientY: startY } = e
-    this.props.onDragStart && this.props.onDragStart()
     this._isMouseDown = true
+
+    let dragStarted = false
+    let dragTrashold = this.props.dragTrashold
+
     const onMove = (e) => {
       if (!this._isMouseDown) return // patch: fix windows press win key during mouseup issue
       e.stopImmediatePropagation()
       const { clientX, clientY } = e
       const deltaX = clientX - startX
       const deltaY = clientY - startY
+
+      if (!dragStarted) {
+        if (Math.abs(deltaX) < dragTrashold && Math.abs(deltaY) < dragTrashold) {
+          return
+        }
+        dragStarted = true
+        this.props.onDragStart && this.props.onDragStart()
+      }
+
       this.props.onDrag(deltaX, deltaY)
       startX = clientX
       startY = clientY
@@ -65,6 +78,7 @@ export default class Rect extends PureComponent {
       document.removeEventListener('mouseup', onUp)
       if (!this._isMouseDown) return
       this._isMouseDown = false
+      if (!dragStarted) return
       this.props.onDragEnd && this.props.onDragEnd()
     }
     document.addEventListener('mousemove', onMove)
