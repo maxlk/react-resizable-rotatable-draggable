@@ -450,14 +450,14 @@ var StyledRect = styled.div.withConfig({
 })(["position:absolute;border:1px solid #eb5648;.square{position:absolute;width:7px;height:7px;background:white;border:1px solid #eb5648;border-radius:1px;}.resizable-handler{position:absolute;width:14px;height:14px;cursor:pointer;z-index:1;&.tl,&.t,&.tr{top:-7px;}&.tl,&.l,&.bl{left:-7px;}&.bl,&.b,&.br{bottom:-7px;}&.br,&.r,&.tr{right:-7px;}&.l,&.r{margin-top:-7px;}&.t,&.b{margin-left:-7px;}}.rotate{position:absolute;left:50%;top:-26px;width:18px;height:18px;margin-left:-9px;display:flex;justify-content:center;align-items:center;cursor:pointer;}.t,.tl,.tr{top:-3px;}.b,.bl,.br{bottom:-3px;}.r,.tr,.br{right:-3px;}.tl,.l,.bl{left:-3px;}.l,.r{top:50%;margin-top:-3px;}.t,.b{left:50%;margin-left:-3px;}"]);
 
 var zoomableMap = {
-  'n': 't',
-  's': 'b',
-  'e': 'r',
-  'w': 'l',
-  'ne': 'tr',
-  'nw': 'tl',
-  'se': 'br',
-  'sw': 'bl'
+  n: "t",
+  s: "b",
+  e: "r",
+  w: "l",
+  ne: "tr",
+  nw: "tl",
+  se: "br",
+  sw: "bl"
 };
 var MAIN_BUTTON = 0;
 
@@ -509,23 +509,24 @@ function (_PureComponent) {
           _this.props.onDragStart && _this.props.onDragStart();
         }
 
-        _this.props.onDrag(deltaX, deltaY);
-
-        startX = clientX;
-        startY = clientY;
+        if (e.shiftKey) {
+          if (Math.abs(deltaX) > Math.abs(deltaY)) _this.props.onDrag(deltaX, 0);else _this.props.onDrag(0, deltaY);
+        } else {
+          _this.props.onDrag(deltaX, deltaY);
+        }
       };
 
       var onUp = function onUp() {
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
         if (!_this._isMouseDown) return;
         _this._isMouseDown = false;
         if (!dragStarted) return;
         _this.props.onDragEnd && _this.props.onDragEnd();
       };
 
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "startRotate", function (e) {
@@ -563,15 +564,15 @@ function (_PureComponent) {
       };
 
       var onUp = function onUp() {
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
         if (!_this._isMouseDown) return;
         _this._isMouseDown = false;
         _this.props.onRotateEnd && _this.props.onRotateEnd();
       };
 
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "startResize", function (e, cursor) {
@@ -594,7 +595,7 @@ function (_PureComponent) {
         centerY: centerY,
         rotateAngle: rotateAngle
       };
-      var type = e.target.getAttribute('class').split(' ')[0];
+      var type = e.target.getAttribute("class").split(" ")[0];
       _this.props.onResizeStart && _this.props.onResizeStart();
       _this._isMouseDown = true;
 
@@ -614,16 +615,16 @@ function (_PureComponent) {
       };
 
       var onUp = function onUp() {
-        document.body.style.cursor = 'auto';
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
+        document.body.style.cursor = "auto";
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
         if (!_this._isMouseDown) return;
         _this._isMouseDown = false;
         _this.props.onResizeEnd && _this.props.onResizeEnd();
       };
 
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
     });
 
     return _this;
@@ -655,7 +656,7 @@ function (_PureComponent) {
         left: centerX - Math.abs(width) / 2,
         top: centerY - Math.abs(height) / 2
       };
-      var direction = zoomable.split(',').map(function (d) {
+      var direction = zoomable.split(",").map(function (d) {
         return d.trim();
       }).filter(function (d) {
         return d;
@@ -721,7 +722,7 @@ _defineProperty(Rect, "propTypes", {
 });
 
 _defineProperty(Rect, "defaultProps", {
-  className: ''
+  className: ""
 });
 
 var ResizableRect =
