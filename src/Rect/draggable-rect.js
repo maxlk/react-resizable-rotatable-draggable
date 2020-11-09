@@ -106,7 +106,7 @@ export class DraggableRect extends PureComponent {
       <div
         ref={this.setElementRef}
         onMouseDown={this.startDrag}
-        className={`rect single-resizer ${className}`}
+        className={className}
         style={style}
       >
         {children}

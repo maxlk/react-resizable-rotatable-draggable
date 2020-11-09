@@ -134,7 +134,7 @@ export class ResizableRotatableRect extends PureComponent {
     return (
       <StyledResizableRotatableRect
         ref={this.setElementRef}
-        className={`rect single-resizer ${className}`}
+        className={className}
         style={style}
       >
         {
