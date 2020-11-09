@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { PureComponent } from 'react'
 import { getLength, getAngle, getCursor } from '../utils'
-import StyledRect from './StyledRect'
+import StyledResizableRotatableRect from './StyledResizableRotatableRect'
 
 const zoomableMap = {
   'n': 't',
@@ -14,7 +14,7 @@ const zoomableMap = {
   'sw': 'bl'
 }
 
-export default class Rect extends PureComponent {
+export class ResizableRotatableRect extends PureComponent {
   static propTypes = {
     styles: PropTypes.object,
     zoomable: PropTypes.string,
@@ -25,39 +25,10 @@ export default class Rect extends PureComponent {
     onRotateStart: PropTypes.func,
     onRotate: PropTypes.func,
     onRotateEnd: PropTypes.func,
-    onDragStart: PropTypes.func,
-    onDrag: PropTypes.func,
-    onDragEnd: PropTypes.func,
     parentRotateAngle: PropTypes.number
   }
 
   setElementRef = (ref) => { this.$element = ref }
-
-  // Drag
-  startDrag = (e) => {
-    let { clientX: startX, clientY: startY } = e
-    this.props.onDragStart && this.props.onDragStart()
-    this._isMouseDown = true
-    const onMove = (e) => {
-      if (!this._isMouseDown) return // patch: fix windows press win key during mouseup issue
-      e.stopImmediatePropagation()
-      const { clientX, clientY } = e
-      const deltaX = clientX - startX
-      const deltaY = clientY - startY
-      this.props.onDrag(deltaX, deltaY)
-      startX = clientX
-      startY = clientY
-    }
-    const onUp = () => {
-      document.removeEventListener('mousemove', onMove)
-      document.removeEventListener('mouseup', onUp)
-      if (!this._isMouseDown) return
-      this._isMouseDown = false
-      this.props.onDragEnd && this.props.onDragEnd()
-    }
-    document.addEventListener('mousemove', onMove)
-    document.addEventListener('mouseup', onUp)
-  }
 
   // Rotate
   startRotate = (e) => {
@@ -152,9 +123,8 @@ export default class Rect extends PureComponent {
     const direction = zoomable.split(',').map(d => d.trim()).filter(d => d) // TODO: may be speed up
 
     return (
-      <StyledRect
+      <StyledResizableRotatableRect
         ref={this.setElementRef}
-        onMouseDown={this.startDrag}
         className="rect single-resizer"
         style={style}
       >
@@ -187,7 +157,7 @@ export default class Rect extends PureComponent {
             )
           })
         }
-      </StyledRect>
+      </StyledResizableRotatableRect>
     )
   }
 }
