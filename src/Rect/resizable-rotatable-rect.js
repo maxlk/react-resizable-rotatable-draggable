@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { PureComponent } from 'react'
 import { getLength, getAngle, getCursor } from '../utils'
-import StyledRect from './StyledRect'
+import StyledResizableRotatableRect from './StyledResizableRotatableRect'
 
 const zoomableMap = {
   'n': 't',
@@ -16,7 +16,7 @@ const zoomableMap = {
 
 const MAIN_MOUSE_BUTTON = 0
 
-export default class Rect extends PureComponent {
+export class ResizableRotatableRect extends PureComponent {
   static propTypes = {
     className: PropTypes.string,
     children: PropTypes.oneOfType([
@@ -26,88 +26,16 @@ export default class Rect extends PureComponent {
     styles: PropTypes.object,
     zoomable: PropTypes.string,
     rotatable: PropTypes.bool,
-    dragStartThreshold: PropTypes.number,
-    dragStartTimeThreshold: PropTypes.number,
     onResizeStart: PropTypes.func,
     onResize: PropTypes.func,
     onResizeEnd: PropTypes.func,
     onRotateStart: PropTypes.func,
     onRotate: PropTypes.func,
     onRotateEnd: PropTypes.func,
-    onDragStart: PropTypes.func,
-    onDrag: PropTypes.func,
-    onDragEnd: PropTypes.func,
     parentRotateAngle: PropTypes.number
   }
 
-  static defaultProps = {
-    className: ''
-  }
-
   setElementRef = (ref) => { this.$element = ref }
-
-  // Drag
-  startDrag = (e) => {
-    if (e.button !== MAIN_MOUSE_BUTTON) return
-    let { clientX: lastX, clientY: lastY } = e
-    let startX = lastX
-    let startY = lastY
-    this._isMouseDown = true
-
-    let dragStarted = false
-    const { dragStartThreshold, dragStartTimeThreshold } = this.props
-    const startDragTimer = setTimeout(() => {
-      dragStarted = true
-      startX = lastX
-      startY = lastY
-      this.props.onDragStart && this.props.onDragStart()
-    }, dragStartTimeThreshold)
-
-    const onMove = (e) => {
-      if (!this._isMouseDown) return // patch: fix windows press win key during mouseup issue
-      e.stopImmediatePropagation()
-      const { clientX, clientY } = e
-      const deltaX = clientX - startX
-      const deltaY = clientY - startY
-      lastX = clientX
-      lastY = clientY
-
-      if (!dragStarted) {
-        if (
-          Math.abs(deltaX) < dragStartThreshold &&
-          Math.abs(deltaY) < dragStartThreshold
-        ) {
-          return
-        }
-        dragStarted = true
-        clearTimeout(startDragTimer)
-        this.props.onDragStart && this.props.onDragStart()
-      }
-
-      if (e.shiftKey) {
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-          this.props.onDrag(deltaX, 0)
-        } else {
-          this.props.onDrag(0, deltaY)
-        }
-      } else {
-        this.props.onDrag(deltaX, deltaY)
-      }
-    }
-    const onUp = () => {
-      document.removeEventListener('mousemove', onMove)
-      document.removeEventListener('mouseup', onUp)
-      if (!this._isMouseDown) return
-      this._isMouseDown = false
-      if (!dragStarted) {
-        clearTimeout(startDragTimer)
-        return
-      }
-      this.props.onDragEnd && this.props.onDragEnd()
-    }
-    document.addEventListener('mousemove', onMove)
-    document.addEventListener('mouseup', onUp)
-  }
 
   // Rotate
   startRotate = (e) => {
@@ -204,9 +132,8 @@ export default class Rect extends PureComponent {
     const direction = zoomable.split(',').map(d => d.trim()).filter(d => d) // TODO: may be speed up
 
     return (
-      <StyledRect
+      <StyledResizableRotatableRect
         ref={this.setElementRef}
-        onMouseDown={this.startDrag}
         className={`rect single-resizer ${className}`}
         style={style}
       >
@@ -240,7 +167,7 @@ export default class Rect extends PureComponent {
           })
         }
         {children}
-      </StyledRect>
+      </StyledResizableRotatableRect>
     )
   }
 }

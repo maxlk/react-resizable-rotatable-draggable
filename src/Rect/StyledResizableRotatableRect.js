@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 
 export default styled.div`
+  pointer-events: none;
   position: absolute;
   border: 1px solid #eb5648;
 
@@ -14,6 +15,7 @@ export default styled.div`
   }
 
   .resizable-handler {
+    pointer-events: auto;
     position: absolute;
     width: 14px;
     height: 14px;
@@ -56,6 +58,7 @@ export default styled.div`
   }
 
   .rotate {
+    pointer-events: auto;
     position: absolute;
     left: 50%;
     top: -26px;
