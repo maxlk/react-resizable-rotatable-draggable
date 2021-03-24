@@ -38,12 +38,16 @@ export default class Rect extends PureComponent {
   // Drag
   startDrag = (e) => {
     let { clientX: lastX, clientY: lastY } = e
+    let startX = lastX
+    let startY = lastY
     this._isMouseDown = true
 
     let dragStarted = false
     const { dragStartThreshold, dragStartTimeThreshold } = this.props
     const startDragTimer = setTimeout(() => {
       dragStarted = true
+      startX = lastX
+      startY = lastY
       this.props.onDragStart && this.props.onDragStart()
     }, dragStartTimeThreshold)
 
@@ -51,8 +55,8 @@ export default class Rect extends PureComponent {
       if (!this._isMouseDown) return // patch: fix windows press win key during mouseup issue
       e.stopImmediatePropagation()
       const { clientX, clientY } = e
-      const deltaX = clientX - lastX
-      const deltaY = clientY - lastY
+      const deltaX = clientX - startX
+      const deltaY = clientY - startY
       lastX = clientX
       lastY = clientY
 
@@ -68,7 +72,15 @@ export default class Rect extends PureComponent {
         this.props.onDragStart && this.props.onDragStart()
       }
 
-      this.props.onDrag(deltaX, deltaY)
+      if (e.shiftKey) {
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          this.props.onDrag(deltaX, 0)
+        } else {
+          this.props.onDrag(0, deltaY)
+        }
+      } else {
+        this.props.onDrag(deltaX, deltaY)
+      }
     }
     const onUp = () => {
       document.removeEventListener('mousemove', onMove)
